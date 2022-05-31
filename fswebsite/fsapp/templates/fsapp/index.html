@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stephen Swetonic</title>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js">
+  </script>
+</head>
+
+<body>
+  <div class="wrapper">
+    <header>
+      <nav>
+        <div class="menu">
+
+          <ul>
+            <li><a class="active" href="#">HOME</a></li>
+            <li><a href="#">RESUME</a></li>
+            <li><a href="projects.html">PROJECTS</a></li>
+            <li><a href="#">CONTACT</a></li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+
+    <div id="particles-js">
+      <div id="name">Stephen Swetonic</div>
+    </div>
+    <div class="content">
+      <p>
+        Welcome to my website! I created this a couple years ago to act as a personal resume and to teach myself a bit
+        of web development
+      </p>
+
+      <p><a href="projects.html"> PROJECTS </a></p>
+      <p>
+        Check out Projects to see what I have done so far!
+      </p>
+
+
+    </div>
+  </div>
+  <footer></footer>
+  <script type="text/javascript">
+    // Menu-toggle button
+
+    $(document).ready(function () {
+      $(".menu-icon").on("click", function () {
+        $("nav ul").toggleClass("showing");
+      });
+    });
+
+    // Scrolling Effect
+
+    $(window).on("scroll", function () {
+      if ($(window).scrollTop()) {
+        $('nav').addClass('black');
+      } else {
+        $('nav').removeClass('black');
+      }
+    })
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+  <script>
+    particlesJS.load('particles-js', 'particles.json', function () {
+      console.log('particles.json loaded...');
+    });
+  </script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script type="text/javascript">
+    $(function () {
+
+      var documentEl = $(document),
+        fadeElem = $('.fade-scroll');
+
+      documentEl.on('scroll', function () {
+        var currScrollPos = documentEl.scrollTop();
+
+        fadeElem.each(function () {
+          var $this = $(this),
+            elemOffsetTop = $this.offset().top;
+          if (currScrollPos > elemOffsetTop) $this.css('opacity', 1 - (currScrollPos - elemOffsetTop) /
+          400);
+        });
+      });
+
+    });
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,3 @@
+#!/Users/stephenswetonic/Documents/FocusStacker/env/bin/python3
+from numba.pycc import main
+main()

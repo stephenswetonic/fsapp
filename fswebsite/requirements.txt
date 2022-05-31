@@ -1,0 +1,9 @@
+asgiref==3.2.10
+Django==3.1
+djangorestframework==3.13.1
+imutils==0.5.4
+numpy==1.21.6
+opencv-python==4.5.5.64
+Pillow==9.1.1
+pytz==2022.1
+sqlparse==0.4.2
