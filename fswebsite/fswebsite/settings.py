@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-hhk-)xobrhiy0^a!l#2$xtg=-+gs_)1cepu1g6=!f3hk25ydrp
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["fsapp-dev.us-west-2.elasticbeanstalk.com", "127.0.0.1"]
+ALLOWED_HOSTS = ["fsapp.eba-wqxdsvvk.us-west-2.elasticbeanstalk.com", "127.0.0.1"]
 
 
 # Application definition
@@ -56,6 +56,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'fswebsite.urls'
+
+CELERY_BROKER_URL = 'redis://localhost:6379'
 
 TEMPLATES = [
     {

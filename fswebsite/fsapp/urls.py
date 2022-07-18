@@ -15,5 +15,6 @@ urlpatterns = [
   path('add_article/', views.add_article, name = 'add_article'),
   path('fsjob_form/', views.fsjob_form),
   path('fsmain/<int:id>/', fsmain),
+  path('stream/', views.stream, name='stream'),
   #path('fsmain/', views.fsmain),
 ]

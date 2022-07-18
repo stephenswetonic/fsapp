@@ -6,9 +6,7 @@ from django.http import HttpResponse, JsonResponse
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
-from rest_framework import generics
-from rest_framework import mixins
-from .models import Article, FSJob, FSImage
+from .models import FSJob, FSImage
 from .serializers import FSJobSerializer
 from rest_framework.response import Response
 from rest_framework import status
@@ -16,8 +14,13 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import TemplateHTMLRenderer
 from .forms import ArticleForm, FSJobForm, ImageForm
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, StreamingHttpResponse
 from django.forms import modelformset_factory
+import datetime
+import time
+from celery import shared_task
+from .tasks import add
+
 
 def index(request):
   return render(request, 'fsapp/index.html')
@@ -43,9 +46,17 @@ def fsjob_form(request):
   return render(request, 'fsapp/fsjob_form.html')
 
 def fsmain(request, id):
+  add.delay(1,2)
   job = FSJob.objects.get(id = id)
   images = job.fsimage_set.all()
   return render(request, 'fsapp/fsmain.html', {'images' : images})
+
+def stream(request):
+  def event_stream():
+        while True:
+            time.sleep(3)
+            yield 'data: The server time is: %s\n\n' % datetime.datetime.now()
+  return StreamingHttpResponse(event_stream(), content_type='text/event-stream')
 
 def add_article(request):
   submitted = False

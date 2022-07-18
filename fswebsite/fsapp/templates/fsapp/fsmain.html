@@ -5,33 +5,90 @@
         <meta http-equiv="X-UA-Compatible" content="IE=7">
         <title>FS Main</title>
 
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF" crossorigin="anonymous"></script>
 
         <script>
             function imgchange(thumbnail){
                 var element = document.getElementById("result");
                 var src = thumbnail.getAttribute("src");
                 element.setAttribute("src", src);
+                
                 //element.setAttribute("height", "100%")
             }
         </script>
 
+<script>
+    $(function() {
+		$('.pop').on('click', function() {
+			// $('.imagepreview').attr('src', $(this).find('img').attr('src'));
+            var newSrc = $(this).find('img').attr('src');
+
+            console.log(newSrc)
+            $('.imagepreview').attr('src', newSrc);
+            
+			$('#imagemodal').modal('show');   
+		});		
+});
+  </script>
+
     </head>
 
     <body>
-        <div class="container">
-            <div class="row bg-primary">
-                <div class="col-md-6">
-                    <div class="row">
-                        {% for image in images %}
-                        <div class="col-md-6"><img src={{image.image.url}} alt="" class="img-thumbnail m-2" onclick="imgchange(this)" onmouseover="" style="cursor: pointer;"/></div>
-                        <div class="col-md-6">result</div>
-                        {% endfor %}
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link active" id="images-tab" data-toggle="tab" href="#images" role="tab" aria-controls="images" aria-selected="true">Images</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="filtered-tab" data-toggle="tab" href="#filtered" role="tab" aria-controls="filtered" aria-selected="false">Filtered Images</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Contact</a>
+            </li>
+          </ul>
+
+          <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="images" role="tabpanel" aria-labelledby="images-tab">
+                
+                <div class="list-group p-3">
+                    {% for image in images %}
+                    <li class="list-group-item text-center" style="width: 50%;"><a href="#" class="pop"><img src={{image.image.url}} alt="" id="imageresource" style="max-width: 100%; max-height: 100%;" class="p-3"/></a></li>
+                    {% endfor %}
+                    
+                </div>
+                       
+
+            </div>
+            <div class="tab-pane fade" id="filtered" role="tabpanel" aria-labelledby="filtered-tab">filtered
+                
+            </div>
+            <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">contact</div>
+
+            
+            
+          </div>
+
+            <div class="modal fade" id="imagemodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                                    class="sr-only">Close</span></button>
+                            <!-- <h4 class="modal-title" id="myModalLabel">Image preview</h4> -->
+                        </div>
+                        <div class="modal-body">
+                            <img src="" class="imagepreview" style="width: 100%; height: 100%;">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-4" ><img src="/static/images/placeholder-image.png" alt="result" id="result" height="600vh"></div>
-            </div>
-        </div>
+            </div> 
+
+
     </body>
 </html>
