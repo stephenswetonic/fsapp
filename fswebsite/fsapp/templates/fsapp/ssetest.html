@@ -1,19 +1,52 @@
 <!DOCTYPE html>
+<head>
+    
+</head>
 <html>
 <body>
 
-<h1>Getting server updates</h1>
-<div id="result"></div>
+<h1>Page A</h1>
+<img src="/images/loader-blocks.gif" alt="loading gif" id="1">
+<img src="/images/loader-blocks.gif" alt="loading gif" id="2">
+<img src="/images/loader-blocks.gif" alt="loading gif" id="3">
 
-<script>
-if(typeof(EventSource) !== "undefined") {
-  var source = new EventSource("stream/");
-  source.onmessage = function(event) {
-    document.getElementById("result").innerHTML += event.data + "<br>";
-  };
-} else {
-  document.getElementById("result").innerHTML = "Sorry, your browser does not support server-sent events...";
-}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script><script>
+    function pollPage(){
+        let csrftoken = '{{ csrf_token }}'
+
+        $.ajax({
+            url: '/streamb/',
+            type: 'POST',
+            headers: {'X-CSRFToken':csrftoken},
+            data: {'task_id': '{{task_id}}' },
+            dataType: 'json',
+            statusCode: {
+                200: function(data) {
+                    console.log('success');
+                    window.location.href = "/streamb/";
+                },
+                404: function(data) {
+                    console.log(data.responseJSON);
+                    setTimeout(function() {
+                    pollPage();
+                    },1000);
+                }
+            }
+            // success: function(result){
+            //         // $('#image-id').attr('src', result.image);
+            //         console.log('success');
+            //         window.location.href = "/streamb/";
+            // },
+            // error: function(xhr){
+            //     console.log('error');
+            //     setTimeout(function() {
+            //         pollPage();
+            //     },1000);
+            // }
+
+        });
+    };
+    pollPage();   
 </script>
 
 </body>

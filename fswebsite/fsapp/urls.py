@@ -1,7 +1,7 @@
 # Project urls
 from django.urls import path
 from . import views
-from .views import FSJobAPIView, add_article, fsjob_form, fsmain
+from .views import FSJobAPIView, add_article, celerytest, fsjob_form, fsmain
 
 urlpatterns = [
   path('', views.index, name='index'),
@@ -15,6 +15,8 @@ urlpatterns = [
   path('add_article/', views.add_article, name = 'add_article'),
   path('fsjob_form/', views.fsjob_form),
   path('fsmain/<int:id>/', fsmain),
-  path('stream/', views.stream, name='stream'),
+  path('streama/', views.streamA, name='stream'),
+  path('streamb/', views.streamB),
+  path('celerytest/', views.celerytest)
   #path('fsmain/', views.fsmain),
 ]

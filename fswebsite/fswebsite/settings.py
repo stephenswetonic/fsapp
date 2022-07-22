@@ -58,6 +58,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'fswebsite.urls'
 
 CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_IGNORE_RESULT = False
 
 TEMPLATES = [
     {

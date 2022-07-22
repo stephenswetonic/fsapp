@@ -46,17 +46,80 @@ def fsjob_form(request):
   return render(request, 'fsapp/fsjob_form.html')
 
 def fsmain(request, id):
-  add.delay(1,2)
   job = FSJob.objects.get(id = id)
   images = job.fsimage_set.all()
   return render(request, 'fsapp/fsmain.html', {'images' : images})
 
-def stream(request):
-  def event_stream():
-        while True:
-            time.sleep(3)
-            yield 'data: The server time is: %s\n\n' % datetime.datetime.now()
-  return StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+def streamA(request):
+  task1 = add.delay(1,2)
+  task2 = add.delay(3,4)
+  task3 = add.delay(5,6)
+  return render(request, 'fsapp/ssetest.html', {'task_id' : [task1.id, task2.id, task3.id]})
+
+def streamB(request):
+
+  if request.method == 'POST':
+    # getting list of task ids and separating by commas
+    unfinished_tasks = []
+    post_list = request.POST.get('task_id')
+    post_list_cleaned = []
+
+    post_list = post_list.split(',')
+
+    #print(post_list)
+
+    # remove brackets and escaped characters
+    for i in range(len(post_list)):
+      item = post_list[i]
+      item = item.replace('&#x27;', '')
+      item = item.replace('[', '')
+      item = item.replace(']', '')
+      item = item.strip()
+      post_list_cleaned.append(item)
+
+
+    #print(post_list_cleaned)
+    # if task not done, add it to the unfinished list
+    for i in range(len(post_list_cleaned)):
+      task = add.AsyncResult(post_list_cleaned[i])
+      print(task)
+      if not task.ready():
+        #print('added task')
+        unfinished_tasks.append(task)
+
+    print(unfinished_tasks)
+    # if tasks are left, pop one if ready
+    if len(unfinished_tasks) > 0:
+      if unfinished_tasks[0].ready():
+        unfinished_tasks.pop(0)
+    # Return ok when all are done
+    else:
+      return JsonResponse({'finished_id': len(unfinished_tasks)}, safe=False, status=200) #200
+
+
+    return JsonResponse({'finished_ids': len(unfinished_tasks)}, safe=False, status=404) #404
+
+  return render(request, 'fsapp/ssetestb.html')
+  
+def celerytest(request):
+  task1 = add.delay(1,2)
+  task2 = add.delay(3,4)
+  task3 = add.delay(5,6)
+
+  id1 = task1.id
+  id2 = task2.id
+  id3 = task3.id
+
+  results = [add.AsyncResult(id1), add.AsyncResult(id2), add.AsyncResult(id3)]
+
+  for i in range(25):
+    time.sleep(5)
+    for result in results:
+      print(result)
+      print(result.ready())
+
+  return render(request, 'fsapp/celerytest.html')
+
 
 def add_article(request):
   submitted = False
