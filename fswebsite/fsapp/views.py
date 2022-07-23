@@ -1,4 +1,5 @@
 #from turtle import update
+import cv2
 from django.shortcuts import redirect, render
 from django.http import HttpResponse, JsonResponse
 #from django.views.decorators.csrf import csrf_exempt
@@ -6,7 +7,8 @@ from django.http import HttpResponse, JsonResponse
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
-from .models import FSJob, FSImage
+
+from .models import FSJob, FSImage, FSFilteredImage
 from .serializers import FSJobSerializer
 from rest_framework.response import Response
 from rest_framework import status
@@ -14,12 +16,16 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import TemplateHTMLRenderer
 from .forms import ArticleForm, FSJobForm, ImageForm
-from django.http import HttpResponseRedirect, StreamingHttpResponse
+from django.http import HttpResponseRedirect
 from django.forms import modelformset_factory
 import datetime
 import time
 from celery import shared_task
 from .tasks import add
+from .fsprocessor import FSProcessor, align_images, focus_stack
+from django.core.files import File
+from django.conf import settings
+from pathlib import Path
 
 
 def index(request):
@@ -48,6 +54,48 @@ def fsjob_form(request):
 def fsmain(request, id):
   job = FSJob.objects.get(id = id)
   images = job.fsimage_set.all()
+
+  cv2_imgs = []
+  filter_img_paths = []
+  celery_tasks = []
+  celery_task_ids = []
+
+  #print(images[0].image.url)
+
+  for i in range(len(images)):
+    path = str(settings.MEDIA_ROOT) + '/' + images[i].image.name
+    print(path)
+    cv2_imgs.append(cv2.imread(str(path), cv2.IMREAD_GRAYSCALE))
+  
+
+  # Create x test files for each filterimage
+  for i in range(len(images)):
+    path = settings.MEDIA_ROOT / ('job' + str(id) + 'filterimage' + str(i) + '.png ')
+    img = File(open(path, 'w'))
+    filter_img_paths.append(path)
+
+  # Align
+  aligned_imgs = align_images(cv2_imgs)
+
+  # Start tasks
+  #for i in range(len(images)):
+
+  # Get tasks ids
+  # Give each filter image its task id
+  # Tell page how many placeholders to create
+  # Give each placeholder the task id
+
+  # When a task finishes, swap the placeholder for the image
+  # and update the filter image model
+
+
+
+  filterimg = FSFilteredImage(celery_task_id = '0', FSJob = job)
+  filterimg.save()
+
+
+
+
   return render(request, 'fsapp/fsmain.html', {'images' : images})
 
 def streamA(request):

@@ -1,3 +1,4 @@
+import celery
 from django.db import models
 from django.template.defaultfilters import slugify
 
@@ -25,6 +26,11 @@ def get_image_filename(instance, filename):
 
 class FSImage(models.Model):
   image = models.ImageField()
+  FSJob = models.ForeignKey(FSJob, null=True, on_delete=models.SET_NULL)
+
+class FSFilteredImage(models.Model):
+  filtered_image = models.ImageField()
+  celery_task_id = models.CharField(max_length=200, default=None)
   FSJob = models.ForeignKey(FSJob, null=True, on_delete=models.SET_NULL)
 
 

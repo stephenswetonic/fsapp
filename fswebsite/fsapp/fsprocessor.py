@@ -112,13 +112,13 @@ def focus_stack(image, out_file):
 
 
 
-start = time.time()
-threads = multiprocessing.cpu_count()
-print(threads)
-images = ['images/tie_near.jpg', 'images/tie_middle.jpg', 'images/tie_far.jpg']
-outs = ['images/tie_nearF.png', 'images/tie_middleF.png', 'images/tie_farF.png']
+# start = time.time()
+# threads = multiprocessing.cpu_count()
+# print(threads)
+# images = ['images/tie_near.jpg', 'images/tie_middle.jpg', 'images/tie_far.jpg']
+# outs = ['images/tie_nearF.png', 'images/tie_middleF.png', 'images/tie_farF.png']
 
-focus_stack(images, outs)
+# focus_stack(images, outs)
 
-end = time.time()
-print(end - start)
+# end = time.time()
+# print(end - start)
