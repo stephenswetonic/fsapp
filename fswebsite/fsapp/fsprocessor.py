@@ -1,8 +1,11 @@
+from __future__ import absolute_import, unicode_literals
 import cv2
 import numpy as np
-import time
-import threading
-import multiprocessing
+import os
+from celery import Celery
+
+app = Celery('fswebsite', backend='redis://localhost', broker='redis://localhost:6379/0')
+app.autodiscover_tasks()
 
 
 class FSProcessor():
@@ -67,8 +70,8 @@ def align_images(images):
         im2 =  img
 
         # Convert images to grayscale
-        im1_gray = im1
-        im2_gray = im2
+        im1_gray = cv2.cvtColor(im1, cv2.COLOR_BGR2GRAY)
+        im2_gray = cv2.cvtColor(im2, cv2.COLOR_BGR2GRAY)
 
         sz = im1.shape
         warp_mode = cv2.MOTION_TRANSLATION # Can be MOTION.HOMOGRAPHY
@@ -101,11 +104,14 @@ def align_images(images):
 
 # image is a single file
 # This will be assigned to a Celery task
-def focus_stack(image, out_file):
+@app.task(bind=True)
+def focus_stack(self, image, out_file):
     blocksize = 10
     svdNum = 3
+
+    cv2img = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
     
-    fsp = FSProcessor(cv2.imread(image, cv2.IMREAD_GRAYSCALE), out_file)
+    fsp = FSProcessor(cv2img, out_file) # changed image to not read with cv2
     fsp.get_blur_map()
 
 

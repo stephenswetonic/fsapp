@@ -1,5 +1,6 @@
-#from turtle import update
+import os
 import cv2
+#import django
 from django.shortcuts import redirect, render
 from django.http import HttpResponse, JsonResponse
 #from django.views.decorators.csrf import csrf_exempt
@@ -26,7 +27,6 @@ from .fsprocessor import FSProcessor, align_images, focus_stack
 from django.core.files import File
 from django.conf import settings
 from pathlib import Path
-
 
 def index(request):
   return render(request, 'fsapp/index.html')
@@ -57,28 +57,43 @@ def fsmain(request, id):
 
   cv2_imgs = []
   filter_img_paths = []
+  aligned_img_paths = []
   celery_tasks = []
   celery_task_ids = []
 
-  #print(images[0].image.url)
+  new_dir = str(settings.MEDIA_ROOT) + '/job' + str(id)
+  if not os.path.exists(new_dir):
+    os.mkdir(new_dir)
 
+  # Create a list of cv2 images to be aligned
   for i in range(len(images)):
     path = str(settings.MEDIA_ROOT) + '/' + images[i].image.name
     print(path)
-    cv2_imgs.append(cv2.imread(str(path), cv2.IMREAD_GRAYSCALE))
+    cv2_imgs.append(cv2.imread(str(path)))
   
-
+  
   # Create x test files for each filterimage
   for i in range(len(images)):
-    path = settings.MEDIA_ROOT / ('job' + str(id) + 'filterimage' + str(i) + '.png ')
+    path = new_dir + ('/filterimage' + str(i) + '.png')
     img = File(open(path, 'w'))
     filter_img_paths.append(path)
+
+  # Create paths for each aligned image
+  for i in range(len(images)):
+    path = new_dir + ('/alignedimage' + str(i) + '.png')
+    img = File(open(path, 'w'))
+    aligned_img_paths.append(path)
 
   # Align
   aligned_imgs = align_images(cv2_imgs)
 
+  # imwrite to aligned img paths
+  for i in range(len(aligned_img_paths)):
+    cv2.imwrite(aligned_img_paths[i], aligned_imgs[i])
+
   # Start tasks
-  #for i in range(len(images)):
+  for i in range(len(images)):
+    task = focus_stack.delay(aligned_img_paths[i], str(filter_img_paths[i]))
 
   # Get tasks ids
   # Give each filter image its task id
