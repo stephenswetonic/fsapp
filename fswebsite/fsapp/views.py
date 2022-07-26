@@ -27,6 +27,7 @@ from .fsprocessor import FSProcessor, align_images, focus_stack
 from django.core.files import File
 from django.conf import settings
 from pathlib import Path
+import json
 
 def index(request):
   return render(request, 'fsapp/index.html')
@@ -57,9 +58,12 @@ def fsmain(request, id):
 
   cv2_imgs = []
   filter_img_paths = []
+  filter_img_path_short = []
   aligned_img_paths = []
   celery_tasks = []
   celery_task_ids = []
+
+  taskid_img_dict = {}
 
   new_dir = str(settings.MEDIA_ROOT) + '/job' + str(id)
   if not os.path.exists(new_dir):
@@ -77,6 +81,7 @@ def fsmain(request, id):
     path = new_dir + ('/filterimage' + str(i) + '.png')
     img = File(open(path, 'w'))
     filter_img_paths.append(path)
+    filter_img_path_short.append(('/images/job' + str(id) + '/filterimage' + str(i) + '.png'))
 
   # Create paths for each aligned image
   for i in range(len(images)):
@@ -94,6 +99,9 @@ def fsmain(request, id):
   # Start tasks
   for i in range(len(images)):
     task = focus_stack.delay(aligned_img_paths[i], str(filter_img_paths[i]))
+    taskid_img_dict.update({task.id : filter_img_path_short[i]})
+    celery_tasks.append(task)
+    celery_task_ids.append(task.id)
 
   # Get tasks ids
   # Give each filter image its task id
@@ -105,13 +113,67 @@ def fsmain(request, id):
 
 
 
-  filterimg = FSFilteredImage(celery_task_id = '0', FSJob = job)
-  filterimg.save()
+  # filterimg = FSFilteredImage(celery_task_id = '0', FSJob = job)
+  # filterimg.save()
+  # print(taskid_img_dict)
 
 
 
 
-  return render(request, 'fsapp/fsmain.html', {'images' : images})
+  return render(request, 'fsapp/fsmain.html', {'images' : images, 'task_ids' : celery_task_ids, 'job_id':id, 'taskid_img_dict': json.dumps(taskid_img_dict) })
+
+# This function gets pinged until all images have loaded (all celery tasks done)
+def fsmain_loading(request, id):
+  job = FSJob.objects.get(id = id)
+  images = job.fsimage_set.all()
+
+  if request.method == 'POST':
+    unfinished_tasks = []
+    finished_tasks = []
+    post_list = request.POST.get('task_ids')
+    post_list_cleaned = []
+
+    post_list = post_list.split(',')
+
+    # remove brackets and escaped characters
+    for i in range(len(post_list)):
+      item = post_list[i]
+      item = item.replace('&#x27;', '')
+      item = item.replace('[', '')
+      item = item.replace(']', '')
+      item = item.strip()
+      post_list_cleaned.append(item)
+
+    #print(post_list)
+    #print(post_list_cleaned)
+    # if task not done, add it to the unfinished list
+    for i in range(len(post_list_cleaned)):
+      task = add.AsyncResult(post_list_cleaned[i])
+      #print(task)
+      if not task.ready():
+        #print('added task')
+        unfinished_tasks.append(task)
+      else:
+        finished_tasks.append(task.id)
+
+    print(finished_tasks)
+    # if tasks are left, pop one if ready
+    if len(unfinished_tasks) > 0:
+      if unfinished_tasks[0].ready():
+        #finished_tasks.append(unfinished_tasks[0].id)
+        unfinished_tasks.pop(0)
+    # Return ok when all are done
+    else:
+      return JsonResponse({'finished_tasks': finished_tasks}, safe=False, status=200) #200
+
+
+    return JsonResponse({'finished_tasks': finished_tasks}, safe=False, status=404) #404
+
+  return render(request, 'fsapp/fsmain_loading.html')
+
+# @register.filter
+# def get_value(data, key):
+#     return data.get(key)
 
 def streamA(request):
   task1 = add.delay(1,2)
@@ -124,6 +186,7 @@ def streamB(request):
   if request.method == 'POST':
     # getting list of task ids and separating by commas
     unfinished_tasks = []
+    finished_tasks = []
     post_list = request.POST.get('task_id')
     post_list_cleaned = []
 
@@ -145,7 +208,7 @@ def streamB(request):
     # if task not done, add it to the unfinished list
     for i in range(len(post_list_cleaned)):
       task = add.AsyncResult(post_list_cleaned[i])
-      print(task)
+      #print(task)
       if not task.ready():
         #print('added task')
         unfinished_tasks.append(task)
@@ -154,13 +217,14 @@ def streamB(request):
     # if tasks are left, pop one if ready
     if len(unfinished_tasks) > 0:
       if unfinished_tasks[0].ready():
+        finished_task = unfinished_tasks[0].id
         unfinished_tasks.pop(0)
     # Return ok when all are done
     else:
       return JsonResponse({'finished_id': len(unfinished_tasks)}, safe=False, status=200) #200
 
 
-    return JsonResponse({'finished_ids': len(unfinished_tasks)}, safe=False, status=404) #404
+    return JsonResponse({'finished_ids': finished_tasks}, safe=False, status=404) #404
 
   return render(request, 'fsapp/ssetestb.html')
   

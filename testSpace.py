@@ -31,7 +31,8 @@ class FSProcessor(threading.Thread):
         self.out_file = out_file
     
     def get_blur_map(self, win_size=10, sv_num=3):
-        img = self.block
+        #print(self.block)
+        img = cv2.cvtColor(self.block, cv2.COLOR_BGR2GRAY)
         new_img = np.zeros((img.shape[0]+win_size*2, img.shape[1]+win_size*2))
         for i in range(new_img.shape[0]):
             for j in range(new_img.shape[1]):
@@ -71,6 +72,15 @@ class FSProcessor(threading.Thread):
 
         blur_map = (blur_map-min_sv)/(max_sv-min_sv)
         cv2.imwrite(self.out_file, (1-blur_map)*255)
+
+        rgba = cv2.cvtColor(self.block, cv2.COLOR_RGB2RGBA)
+        alpha_mask = (1-blur_map*255)
+        rgba[:, :, 3] = alpha_mask
+
+        cv2.imwrite('alpha.png', rgba)
+
+
+
         return blur_map
 
     def run(self):
@@ -90,8 +100,8 @@ def align_images(images):
     im2 =  img
 
     # Convert images to grayscale
-    im1_gray = im1
-    im2_gray = im2
+    im1_gray = cv2.cvtColor(im1, cv2.COLOR_BGR2GRAY)
+    im2_gray = cv2.cvtColor(im2, cv2.COLOR_BGR2GRAY)
 
     sz = im1.shape
     warp_mode = cv2.MOTION_TRANSLATION # Can be MOTION.HOMOGRAPHY
@@ -134,7 +144,7 @@ def focus_stack(images, out_files):
     aligned_images = []
 
     for i in range(len(images)):
-        cv2_images.append(cv2.imread(images[i], cv2.IMREAD_GRAYSCALE))
+        cv2_images.append(cv2.imread(images[i], cv2.IMREAD_COLOR))
 
     # Align
     aligned_images = align_images(cv2_images)
@@ -166,6 +176,7 @@ threads = multiprocessing.cpu_count()
 print(threads)
 images = ['images/tie_near.jpg', 'images/tie_middle.jpg', 'images/tie_far.jpg']
 outs = ['images/tie_nearF.png', 'images/tie_middleF.png', 'images/tie_farF.png']
+
 
 focus_stack(images, outs)
 

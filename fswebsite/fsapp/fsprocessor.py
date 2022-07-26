@@ -10,39 +10,37 @@ app.autodiscover_tasks()
 
 class FSProcessor():
     def __init__(self, image, out_file):
-        self.block = image
+        self.color_image = image
         self.out_file = out_file
     
-    def get_blur_map(self, win_size=10, sv_num=3):
-        img = self.block
-        new_img = np.zeros((img.shape[0]+win_size*2, img.shape[1]+win_size*2))
+    def get_blur_map(self, block_size=10, sv_number=3):
+        img = cv2.imread(self.color_image, cv2.IMREAD_GRAYSCALE)
+        new_img = np.zeros((img.shape[0]+block_size*2, img.shape[1]+block_size*2))
         for i in range(new_img.shape[0]):
             for j in range(new_img.shape[1]):
-                if i<win_size:
-                    p = win_size-i
-                elif i>img.shape[0]+win_size-1:
+                if i<block_size:
+                    p = block_size-i
+                elif i>img.shape[0]+block_size-1:
                     p = img.shape[0]*2-i
                 else:
-                    p = i-win_size
-                if j<win_size:
-                    q = win_size-j
-                elif j>img.shape[1]+win_size-1:
+                    p = i-block_size
+                if j<block_size:
+                    q = block_size-j
+                elif j>img.shape[1]+block_size-1:
                     q = img.shape[1]*2-j
                 else:
-                    q = j-win_size
+                    q = j-block_size
                 #print p,q, i, j
                 new_img[i,j] = img[p,q]
 
-        #cv2.imwrite('test.jpg', new_img)
-        #cv2.imwrite('testin.jpg', img)
         blur_map = np.zeros((img.shape[0], img.shape[1]))
         max_sv = 0
         min_sv = 1
         for i in range(img.shape[0]):
             for j in range(img.shape[1]):
-                block = new_img[i:i+win_size*2, j:j+win_size*2]
+                block = new_img[i:i+block_size*2, j:j+block_size*2]
                 u, s, v = np.linalg.svd(block)
-                top_sv = np.sum(s[0:sv_num])
+                top_sv = np.sum(s[0:sv_number])
                 total_sv = np.sum(s)
                 sv_degree = top_sv/total_sv
                 if max_sv < sv_degree:
@@ -53,8 +51,16 @@ class FSProcessor():
         #cv2.imwrite('blurmap.jpg', (1 - blur_map) * 255)
 
         blur_map = (blur_map-min_sv)/(max_sv-min_sv)
-        cv2.imwrite(self.out_file, (1-blur_map)*255)
-        return blur_map
+        #cv2.imwrite(self.out_file, (1-blur_map)*255)
+
+        # Applying mask to original color image
+        rgb = cv2.imread(self.color_image, cv2.IMREAD_COLOR)
+        rgba = cv2.cvtColor(rgb, cv2.COLOR_RGB2RGBA)
+        alpha_mask = (1-blur_map*255)
+        rgba[:, :, 3] = alpha_mask
+
+        # Writing to out file
+        cv2.imwrite(self.out_file, rgba)
 
 
 # images is a list of cv2 images
@@ -109,9 +115,9 @@ def focus_stack(self, image, out_file):
     blocksize = 10
     svdNum = 3
 
-    cv2img = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
+    #cv2img = cv2.imread(image, cv2.IMREAD_GRAYSCALE)
     
-    fsp = FSProcessor(cv2img, out_file) # changed image to not read with cv2
+    fsp = FSProcessor(image, out_file) # changed image to not read with cv2
     fsp.get_blur_map()
 
 
