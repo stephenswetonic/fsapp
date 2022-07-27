@@ -28,7 +28,7 @@
                             console.log('success');
                             window.location.href = "/fsmain_loading/{{job_id}}/";
                         },
-                        404: function(data) {
+                        302: function(data) {
                             console.log(data.responseJSON.finished_tasks.length);
                             // loop thru data.resposneJSON.finished_tasks
                             // set img id=taskid to value matching key=taskid in taskid_img_dict

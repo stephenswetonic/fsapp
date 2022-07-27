@@ -167,7 +167,7 @@ def fsmain_loading(request, id):
       return JsonResponse({'finished_tasks': finished_tasks}, safe=False, status=200) #200
 
 
-    return JsonResponse({'finished_tasks': finished_tasks}, safe=False, status=404) #404
+    return JsonResponse({'finished_tasks': finished_tasks}, safe=False, status=302) # Still processing
 
   return render(request, 'fsapp/fsmain_loading.html')
 
