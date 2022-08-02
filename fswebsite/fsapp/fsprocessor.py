@@ -55,8 +55,8 @@ class FSProcessor():
 
         # Applying mask to original color image
         rgb = cv2.imread(self.color_image, cv2.IMREAD_COLOR)
-        rgba = cv2.cvtColor(rgb, cv2.COLOR_RGB2RGBA)
-        alpha_mask = (1-blur_map*255)
+        rgba = cv2.cvtColor(rgb, cv2.COLOR_BGR2BGRA)
+        alpha_mask = ((1-blur_map)*255)
         rgba[:, :, 3] = alpha_mask
 
         # Writing to out file

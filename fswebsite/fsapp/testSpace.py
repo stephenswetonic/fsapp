@@ -73,9 +73,13 @@ class FSProcessor(threading.Thread):
         blur_map = (blur_map-min_sv)/(max_sv-min_sv)
         cv2.imwrite(self.out_file, (1-blur_map)*255)
 
-        rgba = cv2.cvtColor(self.block, cv2.COLOR_RGB2RGBA)
-        alpha_mask = (1-blur_map*255)
+        rgba = cv2.cvtColor(self.block, cv2.COLOR_BGR2BGRA)
+        #print(blur_map)
+        alpha_mask = ((1-blur_map)*255)
         rgba[:, :, 3] = alpha_mask
+
+        print(alpha_mask)
+        print(rgba)
 
         cv2.imwrite('alpha.png', rgba)
 
@@ -174,8 +178,9 @@ def focus_stack(images, out_files):
 start = time.time()
 threads = multiprocessing.cpu_count()
 print(threads)
-images = ['images/tie_near.jpg', 'images/tie_middle.jpg', 'images/tie_far.jpg']
-outs = ['images/tie_nearF.png', 'images/tie_middleF.png', 'images/tie_farF.png']
+images = ['/var/app/current/static/images/tie_end.png', '/var/app/current/static/images/tie_middle.jpg', '/var/app/current/static/images/tie_near.jpg']
+outs = ['/var/app/current/static/images/tie_nearF.png', '/var/app/current/static/images/tie_middleF.png', '/var/app/current/static/images/tie_farF.png']
+
 
 
 focus_stack(images, outs)
