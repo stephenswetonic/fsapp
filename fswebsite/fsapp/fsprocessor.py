@@ -70,7 +70,7 @@ def align_images(images):
     im1 =  images[0]
 
     returnImages = []
-    returnImages.append(im1)
+    #returnImages.append(im1)
 
     for img in images:
         im2 =  img

@@ -169,11 +169,35 @@ def fsmain_loading(request, id):
 
     return JsonResponse({'finished_tasks': finished_tasks}, safe=False, status=302) # Still processing
 
-  return render(request, 'fsapp/fsmain_loading.html')
 
-# @register.filter
-# def get_value(data, key):
-#     return data.get(key)
+  return render(request, 'fsapp/fsmain_loading.html', {'jobid' : id})
+
+
+def fsmain_loaded(request, id):
+  job = FSJob.objects.get(id = id)
+  images = job.fsimage_set.all()
+  filtered_images = []
+  filtered_images_cv2 = []
+
+  result_path = 'static/images/job' + str(id) + '/result' + '.png'
+  result_path_template = '/images/job' + str(id) + '/result' + '.png'
+
+
+  for i in range(len(images)):
+    filtered_images.append('/images/job' + str(id) + '/filterimage' + str(i) + '.png')
+    filtered_images_cv2.append('static/images/job' + str(id) + '/filterimage' + str(i) + '.png')
+
+  # Need to add back ground under this
+  background = cv2.imread(filtered_images_cv2[0], -1)
+
+  print(filtered_images_cv2)
+
+  for i in range(len(filtered_images_cv2) - 1):
+    background = cv2.addWeighted(background, 1, cv2.imread(filtered_images_cv2[i + 1], -1), 0.5, 0.0)
+
+  cv2.imwrite(result_path, background)
+
+  return render(request, 'fsapp/fsmain_loaded.html', {'images' : images, 'filtered_images': filtered_images, 'result' : result_path_template})
 
 def streamA(request):
   task1 = add.delay(1,2)
