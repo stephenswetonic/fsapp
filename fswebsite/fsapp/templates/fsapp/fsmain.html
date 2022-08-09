@@ -116,7 +116,7 @@
               <a class="nav-link" id="filtered-tab" data-toggle="tab" href="#filtered" role="tab" aria-controls="filtered" aria-selected="false">Filtered Images</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Contact</a>
+              <a class="nav-link" id="result-tab" data-toggle="tab" href="#result" role="tab" aria-controls="result" aria-selected="false">Result</a>
             </li>
           </ul>
 
@@ -132,7 +132,7 @@
                        
 
             </div>
-            <div class="tab-pane fade" id="filtered" role="tabpanel" aria-labelledby="filtered-tab">filtered
+            <div class="tab-pane fade" id="filtered" role="tabpanel" aria-labelledby="filtered-tab">
                 <div class="list-group p-3">
                     {% for task_id in task_ids %}
                     <li class="list-group-item text-center" style="width: 50%;"><a href="#" class="pop"><img src="/images/loader-blocks.gif" id={{task_id}} alt="" id="imageresource" style="max-width: 100%; max-height: 100%;" class="p-3"/></a></li>
@@ -141,7 +141,13 @@
                 </div>
                 
             </div>
-            <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">contact</div>
+            <div class="tab-pane fade" id="result" role="tabpanel" aria-labelledby="result-tab">
+                <div class="list-group p-3">
+                    
+                    <li class="list-group-item text-center" style="width: 50%;"><a href="#" class="pop"><img src="/images/loader-blocks.gif" alt="" id="imageresource" style="max-width: 100%; max-height: 100%;" class="p-3"/></a></li>
+                    
+                </div>
+            </div>
 
             
             

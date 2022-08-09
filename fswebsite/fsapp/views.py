@@ -28,6 +28,7 @@ from django.core.files import File
 from django.conf import settings
 from pathlib import Path
 import json
+from PIL import Image
 
 def index(request):
   return render(request, 'fsapp/index.html')
@@ -182,20 +183,20 @@ def fsmain_loaded(request, id):
   result_path = 'static/images/job' + str(id) + '/result' + '.png'
   result_path_template = '/images/job' + str(id) + '/result' + '.png'
 
+  background_fill_path = str(settings.MEDIA_ROOT) + '/' + images[0].image.name
+
 
   for i in range(len(images)):
     filtered_images.append('/images/job' + str(id) + '/filterimage' + str(i) + '.png')
     filtered_images_cv2.append('static/images/job' + str(id) + '/filterimage' + str(i) + '.png')
 
-  # Need to add back ground under this
-  background = cv2.imread(filtered_images_cv2[0], -1)
-
-  print(filtered_images_cv2)
+  background = Image.open(background_fill_path)
+  background.paste(Image.open(filtered_images_cv2[0]), mask=Image.open(filtered_images_cv2[0]))
 
   for i in range(len(filtered_images_cv2) - 1):
-    background = cv2.addWeighted(background, 1, cv2.imread(filtered_images_cv2[i + 1], -1), 0.5, 0.0)
+    background.paste(Image.open(filtered_images_cv2[i+1]), (0,0), mask=Image.open(filtered_images_cv2[i+1]))
 
-  cv2.imwrite(result_path, background)
+  background.save(result_path)
 
   return render(request, 'fsapp/fsmain_loaded.html', {'images' : images, 'filtered_images': filtered_images, 'result' : result_path_template})
 
