@@ -17,6 +17,15 @@
                 var src = thumbnail.getAttribute("src");
                 element.setAttribute("src", src);
             }
+            function modalsrc(){
+                var element = document.getElementById("imgpreview");
+                var src = element.getAttribute("src");
+                
+                var link = document.createElement('a');
+                link.download = 'name';
+                link.href = src;
+                link.click();
+            }
         </script>
 
 <script>
@@ -95,11 +104,17 @@
                                     class="sr-only">Close</span></button>
                             <!-- <h4 class="modal-title" id="myModalLabel">Image preview</h4> -->
                         </div>
-                        <div class="modal-body">
-                            <img src="" class="imagepreview" style="width: 100%; height: 100%;">
+                        <div class="modal-body mx-auto">
+                            <img src="" id="imgpreview" class="imagepreview" style="max-height: 100vh;">
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary" id="downloadbtn" download="" onclick=modalsrc()>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                                    <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                                    <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </div>
