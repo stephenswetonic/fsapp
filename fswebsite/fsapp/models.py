@@ -1,20 +1,11 @@
-import celery
 from django.db import models
 from django.template.defaultfilters import slugify
-
-class Article(models.Model):
-  title = models.CharField(max_length=100)
-  author = models.CharField(max_length=100)
-  email = models.EmailField(max_length=100)
-  date = models.DateTimeField(auto_now_add=True)
-
-  def __str__(self):
-    return self.title
 
 class FSJob(models.Model):
   description = models.CharField(max_length=100)
   date = models.DateTimeField(auto_now_add=True)
   result = models.ImageField()
+  is_finished = models.BooleanField(default=False)
 
   def __str__(self):
     return self.description

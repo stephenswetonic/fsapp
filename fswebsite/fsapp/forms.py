@@ -1,11 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-from .models import Article, FSJob, FSImage
-
-class ArticleForm(ModelForm):
-    class Meta:
-        model = Article
-        fields = '__all__'
+from .models import FSJob, FSImage
 
 class FSJobForm(ModelForm):
     class Meta:

@@ -1,9 +1,8 @@
 import os
 import cv2
 from django.shortcuts import redirect, render
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from .models import FSJob, FSImage
-from celery import shared_task
 from .tasks import add
 from .fsprocessor import FSProcessor, align_images, focus_stack
 from django.core.files import File
@@ -18,7 +17,6 @@ def fsjob_form(request):
       print('this was from the first form')
       data = request.POST
       images = request.FILES.getlist('images')
-      #job = FSJob.objects.create(description=data['description'])
       job = FSJob(description = data['description'])
       job.save()
 
@@ -82,23 +80,6 @@ def fsmain(request, id):
     celery_tasks.append(task)
     celery_task_ids.append(task.id)
 
-  # Get tasks ids
-  # Give each filter image its task id
-  # Tell page how many placeholders to create
-  # Give each placeholder the task id
-
-  # When a task finishes, swap the placeholder for the image
-  # and update the filter image model
-
-
-
-  # filterimg = FSFilteredImage(celery_task_id = '0', FSJob = job)
-  # filterimg.save()
-  # print(taskid_img_dict)
-
-
-
-
   return render(request, 'fsapp/fsmain.html', {'images' : images, 'task_ids' : celery_task_ids, 'job_id':id, 'taskid_img_dict': json.dumps(taskid_img_dict) })
 
 # This function gets pinged until all images have loaded (all celery tasks done)
@@ -123,14 +104,10 @@ def fsmain_loading(request, id):
       item = item.strip()
       post_list_cleaned.append(item)
 
-    #print(post_list)
-    #print(post_list_cleaned)
     # if task not done, add it to the unfinished list
     for i in range(len(post_list_cleaned)):
       task = add.AsyncResult(post_list_cleaned[i])
-      #print(task)
       if not task.ready():
-        #print('added task')
         unfinished_tasks.append(task)
       else:
         finished_tasks.append(task.id)
@@ -139,11 +116,10 @@ def fsmain_loading(request, id):
     # if tasks are left, pop one if ready
     if len(unfinished_tasks) > 0:
       if unfinished_tasks[0].ready():
-        #finished_tasks.append(unfinished_tasks[0].id)
         unfinished_tasks.pop(0)
     # Return ok when all are done
     else:
-      return JsonResponse({'finished_tasks': finished_tasks}, safe=False, status=200) #200
+      return JsonResponse({'finished_tasks': finished_tasks}, safe=False, status=200) #200 Done
 
 
     return JsonResponse({'finished_tasks': finished_tasks}, safe=False, status=302) # Still processing

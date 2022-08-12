@@ -16,6 +16,8 @@ class FSProcessor():
     def get_blur_map(self, block_size=10, sv_number=3):
         img = cv2.imread(self.color_image, cv2.IMREAD_GRAYSCALE)
         new_img = np.zeros((img.shape[0]+block_size*2, img.shape[1]+block_size*2))
+
+        # Filling in the padded image with data
         for i in range(new_img.shape[0]):
             for j in range(new_img.shape[1]):
                 if i<block_size:
@@ -36,6 +38,8 @@ class FSProcessor():
         blur_map = np.zeros((img.shape[0], img.shape[1]))
         max_sv = 0
         min_sv = 1
+
+        
         for i in range(img.shape[0]):
             for j in range(img.shape[1]):
                 block = new_img[i:i+block_size*2, j:j+block_size*2]
