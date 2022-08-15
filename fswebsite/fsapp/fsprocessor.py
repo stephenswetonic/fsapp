@@ -1,7 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 import cv2
 import numpy as np
-import os
 from celery import Celery
 
 app = Celery('fswebsite', backend='redis://localhost', broker='redis://localhost:6379/0')
@@ -39,7 +38,7 @@ class FSProcessor():
         max_sv = 0
         min_sv = 1
 
-        
+
         for i in range(img.shape[0]):
             for j in range(img.shape[1]):
                 block = new_img[i:i+block_size*2, j:j+block_size*2]
